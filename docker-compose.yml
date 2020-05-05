@@ -11,9 +11,6 @@ services:
       - "80:80/tcp"
       - "443:443/tcp"
       - "8080:8080/tcp"
-      # - "53:53/tcp"
-      # - "53:53/udp"
-      # - "67:67/udp"
       - "32400:32400/tcp"
       - "3005:3005/tcp"
       - "8324:8324/tcp"
@@ -23,22 +20,22 @@ services:
       - "32412:32412/udp"
       - "32413:32413/udp"
       - "32414:32414/udp"
-      
+    restart: "${RESTART}"  
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./ssl:/certs
       - ./traefik/ssl.yml:/etc/ssl.yml
     environment:
-      TZ: 'Australia/Sydney'
+      - TZ="${TZ}"
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=web"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.localdomain`)"
+      - "traefik.http.routers.traefik.rule=Host(`${TRAEFIKURL}`)"
       - "traefik.http.middlewares.traefik-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.traefik.middlewares=traefik-https-redirect"
       - "traefik.http.routers.traefik-secure.entrypoints=websecure"
-      - "traefik.http.routers.traefik-secure.rule=Host(`traefik.localdomain`)"
+      - "traefik.http.routers.traefik-secure.rule=Host(`${TRAEFIKURL}`)"
       - "traefik.http.routers.traefik-secure.tls=true"
       - "traefik.http.routers.traefik-secure.service=api@internal"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
@@ -56,27 +53,26 @@ services:
       - "53:53/udp"
       - "67:67/udp"
     environment:
-      TZ: 'Australia/Sydney'
-      WEBPASSWORD: 'mypassword'
+      #Set UID and GID has not been implemeted. Issue #328 on github
+      - TZ="${TZ}"
     volumes:
        - './pihole/etc-pihole/:/etc/pihole/'
        - './pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
     # run `touch ./var-log/pihole.log` first unless you like errors
     # - './var-log/pihole.log:/var/log/pihole.log'
     dns:
-      - 127.0.0.1
       - 1.1.1.1
       - 8.8.8.8
     # Recommended but not required (DHCP needs NET_ADMIN)
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     cap_add:
       - NET_ADMIN
-    restart: always
+    restart: "${RESTART}"
     labels: 
       - "traefik.enable=true"
 
       - "traefik.http.routers.pihole.entrypoints=web"
-      - "traefik.http.routers.pihole.rule=Host(`pihole.localdomain`)"
+      - "traefik.http.routers.pihole.rule=Host(`${PIHOLEURL}`)"
       - "traefik.http.routers.pihole.service=pihole"
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
 
@@ -84,42 +80,28 @@ services:
       - "traefik.http.middlewares.pihole-https-redirect.redirectscheme.scheme=https"
 
       - "traefik.http.routers.pihole-secure.entrypoints=websecure"
-      - "traefik.http.routers.pihole-secure.rule=Host(`pihole.localdomain`)"
+      - "traefik.http.routers.pihole-secure.rule=Host(`${PIHOLEURL}`)"
       - "traefik.http.routers.pihole-secure.tls=true"
       - "traefik.http.routers.pihole-secure.service=pihole"
 
-      # - "traefik.tcp.routers.piholetcp.entrypoints=dnstcp"
-      # - "traefik.tcp.routers.piholetcp.rule=HostSNI(`*`)"
-      # - "traefik.tcp.routers.piholetcp.service=piholetcp"
-      # - "traefik.tcp.services.piholetcp.loadbalancer.server.port=53"
-
-      # - "traefik.udp.routers.piholednsudp.entrypoints=dnsudp"
-      # - "traefik.udp.routers.piholednsudp.service=piholednsudp"
-      # - "traefik.udp.services.piholednsudp.loadbalancer.server.port=53"
-
-      # - "traefik.udp.routers.piholedhcpudp.entrypoints=dhcpudp"
-      # - "traefik.udp.routers.piholedhcpudp.service=piholedhcpudp"
-      # - "traefik.udp.services.piholedhcpudp.loadbalancer.server.port=67"
   nzbget:
     container_name: nzbget_new
     image: linuxserver/nzbget:latest
     expose:
       - "6789"
-    dns: 192.168.0.1
+    dns: "${DNS}"
     volumes:
-      #- /home/smbuser/nzbget/config:/config
-      #- /home/smbuser/smbshare/TDDOWNLOAD/nzbget:/downloads
       - ./nzbget/config:/config
-      - nzbget-downloads:/downloads
+      - ${NZBDOWNLOADS}:/downloads
     environment:
-      - PUID=1002
-      - PGID=994
-      - TZ=Australia/Sydney
-    restart: always
+      - PUID="${PUID}"
+      - PGID="${PGID}"
+      - TZ="${TZ}"
+    restart: "${RESTART}"
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.nzbget.entrypoints=web"
-      - "traefik.http.routers.nzbget.rule=Host(`nzbget.localdomain`)"
+      - "traefik.http.routers.nzbget.rule=Host(`${NZBGETURL}`)"
 
       - "traefik.http.routers.nzbget.middlewares=nzbget-https-redirect"
       - "traefik.http.middlewares.nzbget-https-redirect.redirectscheme.scheme=https"
@@ -127,29 +109,29 @@ services:
       - "traefik.http.services.nzbget.loadbalancer.server.port=6789"
 
       - "traefik.http.routers.nzbget-secure.entrypoints=websecure"
-      - "traefik.http.routers.nzbget-secure.rule=Host(`nzbget.localdomain`)"
+      - "traefik.http.routers.nzbget-secure.rule=Host(`${NZBGETURL}`)"
       - "traefik.http.routers.nzbget-secure.tls=true"
       - "traefik.http.routers.nzbget-secure.service=nzbget"
   radarr:
     image: linuxserver/radarr:latest
     container_name: radarr
     environment:
-      - PUID=1002
-      - PGID=994
-      - TZ=Australia/Sydney
+      - PUID="${PUID}"
+      - PGID="${PGID}"
+      - TZ="${TZ}"
       - UMASK_SET=022 #optional
     volumes:
       - ./radarr:/config
       - all-movies:/movies
-      - nzbget-downloads:/downloads
+      - ${NZBDOWNLOADS}:/downloads
     ports:
       - 7878:7878
-    dns: 192.168.0.1
-    restart: unless-stopped
+    dns: "${DNS}"
+    restart: "${RESTART}"
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.entrypoints=web"
-      - "traefik.http.routers.radarr.rule=Host(`radarr.localdomain`)"
+      - "traefik.http.routers.radarr.rule=Host(`${RADARRURL}`)"
 
       - "traefik.http.routers.radarr.middlewares=radarr-https-redirect"
       - "traefik.http.middlewares.radarr-https-redirect.redirectscheme.scheme=https"
@@ -157,29 +139,29 @@ services:
       - "traefik.http.services.radarr.loadbalancer.server.port=7878"
 
       - "traefik.http.routers.radarr-secure.entrypoints=websecure"
-      - "traefik.http.routers.radarr-secure.rule=Host(`radarr.localdomain`)"
+      - "traefik.http.routers.radarr-secure.rule=Host(`${RADARRURL}`)"
       - "traefik.http.routers.radarr-secure.tls=true"
       - "traefik.http.routers.radarr-secure.service=radarr"
   sonarr:
     image: linuxserver/sonarr:latest
     container_name: sonarr
     environment:
-      - PUID=1002
-      - PGID=994
-      - TZ=Australia/Sydney
+      - PUID="${PUID}"
+      - PGID="${PGID}"
+      - TZ="${TZ}"
       - UMASK_SET=022 #optional
     volumes:
       - ./sonarr:/config
-      - all-tv:/tv
-      - nzbget-downloads:/downloads
+      - ${TV}:/tv
+      - ${NZBDOWNLOADS}:/downloads
     ports:
       - 8989:8989
-    dns: 192.168.0.1
-    restart: unless-stopped
+    dns: "${DNS}"
+    restart: "${RESTART}"
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.entrypoints=web"
-      - "traefik.http.routers.sonarr.rule=Host(`sonarr.localdomain`)"
+      - "traefik.http.routers.sonarr.rule=Host(`${SONARRURL}`)"
 
       - "traefik.http.routers.sonarr.middlewares=sonarr-https-redirect"
       - "traefik.http.middlewares.sonarr-https-redirect.redirectscheme.scheme=https"
@@ -187,34 +169,34 @@ services:
       - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
 
       - "traefik.http.routers.sonarr-secure.entrypoints=websecure"
-      - "traefik.http.routers.sonarr-secure.rule=Host(`sonarr.localdomain`)"
+      - "traefik.http.routers.sonarr-secure.rule=Host(`${SONARRURL}`)"
       - "traefik.http.routers.sonarr-secure.tls=true"
       - "traefik.http.routers.sonarr-secure.service=sonarr"
   plex:
     image: plexinc/pms-docker:latest
     container_name: plex
-    dns: 192.168.0.1
+    dns: "${DNS}"
     environment:
-      - PLEX_UID=1002
-      - PLEX_GID=994
+      - PLEX_UID="${PUID}"
+      - PLEX_GID="${PGID}"
       - VERSION=docker
       - UMASK_SET=022
-      - ADVERTISE_IP="https://192.168.0.2:32400/"
-      - TZ=Australia/Sydney
-      - PLEX_CLAIM="claim-1_YsuS4ZQXB7GPzZtayK"
+      - ADVERTISE_IP="https://${ADVERTISE_IP}:32400/"
+      - TZ="${TZ}"
+      - PLEX_CLAIM="${PLEX_CLAIM}"
     #network_mode: host
     volumes:
       - ./plex/config:/config
       - ./plex/transcode:/transcode
-      - all-movies:/data
-      - all-movies:/movies
-      - all-tv:/tv
-      - all-xxx:/xxx
-    restart: unless-stopped
+      - ${MOVIES}:/data
+      - ${MOVIES}:/movies
+      - ${TV}:/tv
+      - ${XXX}:/xxx
+    restart: "${RESTART}"
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.plex.entrypoints=web"
-      - "traefik.http.routers.plex.rule=Host(`plex.localdomain`)"
+      - "traefik.http.routers.plex.rule=Host(`${PLEXURL}`)"
 
       - "traefik.http.routers.plex.middlewares=plex-https-redirect"
       - "traefik.http.middlewares.plex-https-redirect.redirectscheme.scheme=https"
@@ -222,7 +204,7 @@ services:
       - "traefik.http.services.plex.loadbalancer.server.port=32400"
 
       - "traefik.http.routers.plex-secure.entrypoints=websecure"
-      - "traefik.http.routers.plex-secure.rule=Host(`plex.localdomain`)"
+      - "traefik.http.routers.plex-secure.rule=Host(`${PLEXURL}`)"
       - "traefik.http.routers.plex-secure.tls=true"
       - "traefik.http.routers.plex-secure.service=plex"
 
@@ -267,12 +249,12 @@ services:
       - "traefik.udp.services.plex8.loadbalancer.server.port=32414"
 volumes: 
   nzbget-downloads:
-    external: true
+    external: "${EXTVOLUMES}"
   all-movies:
-    external: true
+    external: "${EXTVOLUMES}"
   all-tv:
-    external: true
+    external: "${EXTVOLUMES}"
   all-xxx:
-    external: true
+    external: "${EXTVOLUMES}"
   all-completed:
-    external: true
+    external: "${EXTVOLUMES}"
