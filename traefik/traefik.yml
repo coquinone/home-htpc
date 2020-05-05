@@ -1,0 +1,48 @@
+entryPoints:
+    # dhcpudp:
+    #   address: ":67/udp"
+    # dnsudp:
+    #   address: ":53/udp"
+    # dnstcp:
+    #   address: ":53"
+    web:
+      address: ":80"
+      http:
+        redirections:
+          entryPoint:
+            to: websecure
+            scheme: https
+    websecure:
+      address: ":443"
+    plexweb:
+      address: ":32400"
+    plex1:
+      address: ":3005"
+    plex2:
+      address: ":8324"
+    plex3:
+      address: ":32469"
+    plex4:
+      address: ":1900/udp"
+    plex5:
+      address: ":32410/udp"
+    plex6:
+      address: ":32412/udp"
+    plex7:
+      address: ":32413/udp"
+    plex8:
+      address: ":32414/udp"
+providers:
+  docker:
+    exposedByDefault: false
+    watch: true
+  file:
+    filename: "/etc/ssl.yml"
+log:
+  level: DEBUG
+api:
+  insecure: true
+  dashboard: true
+docker:
+  domain = localdomain
+ping: {}
