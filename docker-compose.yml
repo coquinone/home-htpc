@@ -27,7 +27,7 @@ services:
       - ./ssl:/certs
       - ./traefik/ssl.yml:/etc/ssl.yml
     environment:
-      - TZ="${TZ}"
+      - TZ=${TZ}
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.entrypoints=web"
@@ -54,7 +54,7 @@ services:
       - "67:67/udp"
     environment:
       #Set UID and GID has not been implemeted. Issue #328 on github
-      - TZ="${TZ}"
+      - TZ=${TZ}
     volumes:
        - './pihole/etc-pihole/:/etc/pihole/'
        - './pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/'
@@ -67,7 +67,7 @@ services:
     #   https://github.com/pi-hole/docker-pi-hole#note-on-capabilities
     cap_add:
       - NET_ADMIN
-    restart: "${RESTART}"
+    restart: ${RESTART}
     labels: 
       - "traefik.enable=true"
 
@@ -94,10 +94,10 @@ services:
       - ./nzbget/config:/config
       - ${NZBDOWNLOADS}:/downloads
     environment:
-      - PUID="${PUID}"
-      - PGID="${PGID}"
-      - TZ="${TZ}"
-    restart: "${RESTART}"
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    restart: ${RESTART}
     labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.nzbget.entrypoints=web"
@@ -116,9 +116,9 @@ services:
     image: linuxserver/radarr:latest
     container_name: radarr
     environment:
-      - PUID="${PUID}"
-      - PGID="${PGID}"
-      - TZ="${TZ}"
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
       - UMASK_SET=022 #optional
     volumes:
       - ./radarr:/config
@@ -146,9 +146,9 @@ services:
     image: linuxserver/sonarr:latest
     container_name: sonarr
     environment:
-      - PUID="${PUID}"
-      - PGID="${PGID}"
-      - TZ="${TZ}"
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
       - UMASK_SET=022 #optional
     volumes:
       - ./sonarr:/config
@@ -175,15 +175,15 @@ services:
   plex:
     image: plexinc/pms-docker:latest
     container_name: plex
-    dns: "${DNS}"
+    dns: ${DNS}
     environment:
-      - PLEX_UID="${PUID}"
-      - PLEX_GID="${PGID}"
+      - PLEX_UID=${PUID}
+      - PLEX_GID=${PGID}
       - VERSION=docker
       - UMASK_SET=022
-      - ADVERTISE_IP="https://${ADVERTISE_IP}:32400/"
-      - TZ="${TZ}"
-      - PLEX_CLAIM="${PLEX_CLAIM}"
+      - ADVERTISE_IP=https://${ADVERTISE_IP}:32400/
+      - TZ=${TZ}
+      - PLEX_CLAIM=${PLEX_CLAIM}
     #network_mode: host
     volumes:
       - ./plex/config:/config
