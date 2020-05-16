@@ -122,7 +122,7 @@ services:
       - UMASK_SET=022 #optional
     volumes:
       - ./radarr:/config
-      - all-movies:/movies
+      - ${MOVIES}:/movies
       - ${NZBDOWNLOADS}:/downloads
     ports:
       - 7878:7878
@@ -172,6 +172,35 @@ services:
       - "traefik.http.routers.sonarr-secure.rule=Host(`${SONARRURL}`)"
       - "traefik.http.routers.sonarr-secure.tls=true"
       - "traefik.http.routers.sonarr-secure.service=sonarr"
+  bazarr:
+    image: linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK_SET=022 #optional
+    volumes:
+      - ./bazarr:/config
+      - ${MOVIES}:/movies
+      - ${TV}:/tv
+    ports:
+      - 6767:6767
+    restart: unless-stopped
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.entrypoints=web"
+      - "traefik.http.routers.bazarr.rule=Host(`${BAZARRURL}`)"
+
+      - "traefik.http.routers.bazarr.middlewares=bazarr-https-redirect"
+      - "traefik.http.middlewares.bazarr-https-redirect.redirectscheme.scheme=https"
+
+      - "traefik.http.services.bazarr.loadbalancer.server.port=6767"
+
+      - "traefik.http.routers.bazarr-secure.entrypoints=websecure"
+      - "traefik.http.routers.bazarr-secure.rule=Host(`${BAZARRURL}`)"
+      - "traefik.http.routers.bazarr-secure.tls=true"
+      - "traefik.http.routers.bazarr-secure.service=bazarr"
   plex:
     image: plexinc/pms-docker:latest
     container_name: plex
