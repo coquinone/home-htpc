@@ -184,7 +184,8 @@ services:
       - ./bazarr:/config
       - ${MOVIES}:/movies
       - ${TV}:/tv
-    ports:
+    dns: "${DNS}"
+      ports:
       - 6767:6767
     restart: unless-stopped
     labels: 
