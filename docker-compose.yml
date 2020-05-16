@@ -185,7 +185,7 @@ services:
       - ${MOVIES}:/movies
       - ${TV}:/tv
     dns: "${DNS}"
-      ports:
+    ports:
       - 6767:6767
     restart: unless-stopped
     labels: 
