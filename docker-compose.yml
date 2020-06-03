@@ -213,6 +213,7 @@ services:
     volumes:
       - ./nzbhydra2:/config
       - ${NZBDOWNLOADS}:/downloads
+    dns: "${DNS}"
     ports:
       - 5076:5076
     restart: unless-stopped
