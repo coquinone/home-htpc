@@ -216,7 +216,7 @@ services:
     ports:
       - 5076:5076
     restart: unless-stopped
-    abels: 
+    labels: 
       - "traefik.enable=true"
       - "traefik.http.routers.hydra.entrypoints=web"
       - "traefik.http.routers.hydra.rule=Host(`${HYDRAURL}`)"
