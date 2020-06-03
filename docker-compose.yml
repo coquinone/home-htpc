@@ -212,7 +212,7 @@ services:
       - UMASK_SET=022
     volumes:
       - ./nzbhydra2:/config
-      - NZBDOWNLOADS:/downloads
+      - ${NZBDOWNLOADS}:/downloads
     ports:
       - 5076:5076
     restart: unless-stopped
