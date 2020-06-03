@@ -202,6 +202,34 @@ services:
       - "traefik.http.routers.bazarr-secure.rule=Host(`${BAZARRURL}`)"
       - "traefik.http.routers.bazarr-secure.tls=true"
       - "traefik.http.routers.bazarr-secure.service=bazarr"
+  nzbhydra2:
+    image: linuxserver/nzbhydra2
+    container_name: nzbhydra2
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - UMASK_SET=022
+    volumes:
+      - ./nzbhydra2:/config
+      - NZBDOWNLOADS:/downloads
+    ports:
+      - 5076:5076
+    restart: unless-stopped
+    abels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.hydra.entrypoints=web"
+      - "traefik.http.routers.hydra.rule=Host(`${HYDRAURL}`)"
+
+      - "traefik.http.routers.hydra.middlewares=hydra-https-redirect"
+      - "traefik.http.middlewares.hydra-https-redirect.redirectscheme.scheme=https"
+
+      - "traefik.http.services.hydra.loadbalancer.server.port=5076"
+
+      - "traefik.http.routers.hydra-secure.entrypoints=websecure"
+      - "traefik.http.routers.hydra-secure.rule=Host(`${HYDRAURL}`)"
+      - "traefik.http.routers.hydra-secure.tls=true"
+      - "traefik.http.routers.hydra-secure.service=hydra"
   plex:
     image: plexinc/pms-docker:latest
     container_name: plex
