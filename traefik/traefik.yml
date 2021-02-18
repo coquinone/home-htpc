@@ -46,3 +46,5 @@ api:
 docker:
   domain = localdomain
 ping: {}
+pilot:
+  token: "49b7e2b9-493c-4fad-b95b-2c1638a201b6"
