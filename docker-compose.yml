@@ -120,7 +120,7 @@ services:
       - "traefik.http.routers.transmission.middlewares=traefik-https-redirect"
       - "traefik.http.middlewares.transmission-https-redirect.redirectscheme.scheme=https"
 
-      - "traefik.http.services.nzbget.loadbalancer.server.port=9091"
+      - "traefik.http.services.transmission.loadbalancer.server.port=9091"
 
       - "traefik.http.routers.transmission-secure.entrypoints=websecure"
       - "traefik.http.routers.transmission-secure.rule=Host(`${TRANSURL}`)"
