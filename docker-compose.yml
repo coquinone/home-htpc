@@ -184,6 +184,7 @@ services:
       - ./bazarr:/config
       - ${MOVIES}:/movies
       - ${TV}:/tv
+      - ${NZBDOWNLOADS}:/downloads
     dns: "${DNS}"
     ports:
       - 6767:6767
