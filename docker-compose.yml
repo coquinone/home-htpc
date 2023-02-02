@@ -98,8 +98,8 @@ services:
         - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
         - USER=admin #optional
         - PASS=torrent #optional
-        - WHITELIST=iplist #optional
-        - PEERPORT=peerport #optional
+        - WHITELIST= #optional
+        - PEERPORT=51413 #optional
         - HOST_WHITELIST=dnsname list #optional
       volumes:
         - ./transmission/data:/config
