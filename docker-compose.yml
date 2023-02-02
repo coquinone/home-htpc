@@ -103,8 +103,8 @@ services:
         - HOST_WHITELIST=dnsname list #optional
       volumes:
         - ./transmission/data:/config
-        - ${NZBDOWNLOADS}/transmission:/downloads
-        - ${NZBDOWNLOADS}/transmission/watch:/watch
+        - /home/docker/nas-share/TDDOWNLOAD/transmission/transmission:/downloads
+        - /home/docker/nas-share/TDDOWNLOAD/transmission/watch:/watch
       ports:
         - 9091:9091
         - 51413:51413
