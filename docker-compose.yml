@@ -20,6 +20,10 @@ services:
       - "32412:32412/udp"
       - "32413:32413/udp"
       - "32414:32414/udp"
+      - "9091:9091"
+      - "51413:51413"
+      - "51413:51413/udp"
+
     restart: "${RESTART}"  
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -83,6 +87,54 @@ services:
       - "traefik.http.routers.pihole-secure.rule=Host(`${PIHOLEURL}`)"
       - "traefik.http.routers.pihole-secure.tls=true"
       - "traefik.http.routers.pihole-secure.service=pihole"
+  transmission:
+      image: lscr.io/linuxserver/transmission:latest
+      container_name: transmission
+      environment:
+        - PUID=${PUID}
+        - PGID=${PGID}
+        - TZ=${TZ}
+        - UMASK_SET=022 #optional
+        - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
+        - USER=admin #optional
+        - PASS=torrent #optional
+        - WHITELIST=iplist #optional
+        - PEERPORT=peerport #optional
+        - HOST_WHITELIST=dnsname list #optional
+      volumes:
+        - ./transmission/data:/config
+        - ${NZBDOWNLOADS}/transmission:/downloads
+        - ${NZBDOWNLOADS}/transmission/watch:/watch
+      ports:
+        - 9091:9091
+        - 51413:51413
+        - 51413:51413/udp
+      restart: unless-stopped
+      labels: 
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.transmission.entrypoints=web"
+      - "traefik.http.routers.transmission.rule=Host(`${TRANSURL}`)"
+
+
+      - "traefik.http.routers.transmission.middlewares=traefik-https-redirect"
+      - "traefik.http.middlewares.transmission-https-redirect.redirectscheme.scheme=https"
+
+      - "traefik.http.services.nzbget.loadbalancer.server.port=9091"
+
+      - "traefik.http.routers.transmission-secure.entrypoints=websecure"
+      - "traefik.http.routers.transmission-secure.rule=Host(`${TRANSURL}`)"
+      - "traefik.http.routers.transmission-secure.tls=true"
+      - "traefik.http.routers.transmission-secure.service=transmission"
+
+      - "traefik.tcp.routers.transmission1.entrypoints=transmission1"
+      - "traefik.tcp.routers.transmission1.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.transmission1.service=transmission1"
+      - "traefik.tcp.services.transmission1.loadbalancer.server.port=51413"
+
+      - "traefik.udp.routers.transmission2.entrypoints=transmission2"
+      - "traefik.udp.routers.transmission2.service=transmission2"
+      - "traefik.udp.services.transmission2.loadbalancer.server.port=51413"
 
   nzbget:
     container_name: nzbget_new

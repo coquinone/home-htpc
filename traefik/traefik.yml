@@ -32,6 +32,10 @@ entryPoints:
       address: ":32413/udp"
     plex8:
       address: ":32414/udp"
+    transmission1:
+      address: ":51413"
+    transmission2:
+      address: ":51413/udp"
 providers:
   docker:
     exposedByDefault: false
