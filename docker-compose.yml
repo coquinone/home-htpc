@@ -105,10 +105,10 @@ services:
         - ./transmission/data:/config
         - /home/docker/nas-share/TDDOWNLOAD/transmission/transmission:/downloads
         - /home/docker/nas-share/TDDOWNLOAD/transmission/watch:/watch
-      ports:
-        - 9091:9091
-        - 51413:51413
-        - 51413:51413/udp
+      #ports:
+      #  - 9091:9091
+      #  - 51413:51413
+      #  - 51413:51413/udp
       restart: unless-stopped
       labels: 
       - "traefik.enable=true"
